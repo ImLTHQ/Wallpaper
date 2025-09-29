@@ -4,6 +4,106 @@
             margin: 0;
             min-height: 100vh;
             background: linear-gradient(135deg, rgb(255, 100, 180), rgb(220, 160, 255), rgb(0, 255, 255));
+            overflow: hidden;
+        }
+        .dot {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .line {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.5);
+            transform-origin: 0 0;
+            pointer-events: none;
         }
     </style>
+    <script>
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const dots = [];
+            const lines = [];
+            const dotCount = 50;
+            const maxDistance = 100;
+
+            // Create dots
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.style.left = `${Math.random() * window.innerWidth}px`;
+                dot.style.top = `${Math.random() * window.innerHeight}px`;
+                body.appendChild(dot);
+                dots.push({
+                    element: dot,
+                    x: parseFloat(dot.style.left),
+                    y: parseFloat(dot.style.top),
+                    vx: Math.random() * 0.5 - 0.25,
+                    vy: Math.random() * 0.5 - 0.25
+                });
+            }
+
+            // Create lines
+            for (let i = 0; i < dotCount; i++) {
+                const line = document.createElement('div');
+                line.className = 'line';
+                body.appendChild(line);
+                lines.push(line);
+            }
+
+            // Animation loop
+            function animate() {
+                // Use the current mouse position for line origin
+
+                // Update dots
+                dots.forEach(dot => {
+                    dot.x += dot.vx;
+                    dot.y += dot.vy;
+
+                    // Bounce off edges
+                    if (dot.x < 0 || dot.x > window.innerWidth) dot.vx *= -1;
+                    if (dot.y < 0 || dot.y > window.innerHeight) dot.vy *= -1;
+
+                    dot.element.style.left = `${dot.x}px`;
+                    dot.element.style.top = `${dot.y}px`;
+                });
+
+                // Update lines
+                dots.forEach((dot, i) => {
+                    const dx = dot.x - mouseX;
+                    const dy = dot.y - mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        const line = lines[i];
+                        const angle = Math.atan2(dy, dx);
+                        const length = distance;
+
+                        line.style.width = `${length}px`;
+                        line.style.left = `${mouseX}px`;
+                        line.style.top = `${mouseY}px`;
+                        line.style.transform = `rotate(${angle}rad)`;
+                        line.style.opacity = 1 - distance / maxDistance;
+                    } else {
+                        lines[i].style.opacity = 0;
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            // Track mouse movement
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+        });
+    </script>
 </head>
