@@ -4,163 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kali Linux Terminal Simulator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        terminal: {
-                            bg: '#161616',
-                            text: '#00ff00',
-                            prompt: '#00ffff',
-                            error: '#ff0000',
-                            info: '#ffff00'
-                        }
-                    },
-                    fontFamily: {
-                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace']
-                    }
-                }
-            }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .terminal-cursor {
-                animation: blink 1s step-end infinite;
-            }
-            @keyframes blink {
-                from, to { opacity: 1; }
-                50% { opacity: 0; }
-            }
-            .text-shadow {
-                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-            }
-            .terminal-glow {
-                box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-            }
+        
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: "Courier New", Courier, monospace;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .terminal {
+            padding: 1rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .prompt {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user {
+            color: #ff0000; /* 红色的root@kali */
+            font-weight: bold;
+        }
+        
+        .command {
+            color: #ffffff; /* 白色的命令 */
+            margin-left: 0.5rem;
+        }
+        
+        .output {
+            color: #00ff00; /* 绿色的返回内容 */
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+        
+        .cursor {
+            background-color: #ffffff;
+            width: 0.7em;
+            height: 1em;
+            margin-left: 0.2em;
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { background-color: transparent }
+            50% { background-color: #ffffff }
         }
     </style>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
-    <!-- Terminal Window -->
-    <div class="w-full max-w-4xl bg-terminal-bg rounded-lg overflow-hidden terminal-glow border border-green-500/30">
-        <!-- Terminal Header -->
-        <div class="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-green-500/30">
-            <div class="flex space-x-2">
-                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-            </div>
-            <div class="text-green-400 text-sm font-mono">kali@kali: ~</div>
-            <div class="text-green-400">
-                <i class="fa fa-expand"></i>
-            </div>
-        </div>
-        
-        <!-- Terminal Content -->
-        <div class="p-4 font-mono text-sm md:text-base text-terminal-text text-shadow">
-            <div id="terminal-output" class="space-y-1">
-                <!-- Welcome message -->
-                <div>Linux kali 5.18.0-kali5-amd64 #1 SMP PREEMPT_DYNAMIC Debian 5.18.5-1kali6 (2022-07-07) x86_64 GNU/Linux</div>
-                <div></div>
-                <div>The programs included with the Kali GNU/Linux system are free software;</div>
-                <div>the exact distribution terms for each program are described in the</div>
-                <div>individual files in /usr/share/doc/*/copyright.</div>
-                <div></div>
-                <div>Kali GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent permitted by</div>
-                <div>applicable law.</div>
-                <div></div>
-            </div>
-            
-            <!-- Command input area -->
-            <div class="flex items-baseline">
-                <span class="text-terminal-prompt font-bold">kali@kali</span>
-                <span class="mx-1">:</span>
-                <span class="text-blue-400">~</span>
-                <span class="mx-1">$</span>
-                <span id="current-command" class="ml-1"></span>
-                <span id="cursor" class="terminal-cursor ml-1">_</span>
-            </div>
-        </div>
-    </div>
-
+<body>
+    <div class="terminal" id="terminal"></div>
+    
     <script>
-        // DOM Elements
-        const terminalOutput = document.getElementById('terminal-output');
-        const currentCommand = document.getElementById('current-command');
-        const cursor = document.getElementById('cursor');
+        // 获取终端元素
+        const terminal = document.getElementById('terminal');
         
-        // Command database - can be extended with more commands
-        const commandDatabase = {
-            'uname -a': `Linux kali 5.18.0-kali5-amd64 #1 SMP PREEMPT_DYNAMIC Debian 5.18.5-1kali6 (2022-07-07) x86_64 GNU/Linux`,
-            
-            'ls': `Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  tools`,
+        // 命令与对应输出的映射表，便于扩展
+        const commands = {
+            'uname -a': 'Linux kali 5.10.0-kali9-amd64 #1 SMP Debian 5.10.46-4kali1 (2021-08-09) x86_64 GNU/Linux',
             
             'ls -la': `total 60
-drwxr-xr-x 14 kali kali 4096 Jul 15 10:23 .
-drwxr-xr-x  3 root root 4096 Jun 20 09:15 ..
--rw-------  1 kali kali  357 Jul 14 22:45 .bash_history
--rw-r--r--  1 kali kali  220 Jun 20 09:15 .bash_logout
--rw-r--r--  1 kali kali 3523 Jun 20 09:15 .bashrc
-drwx------ 10 kali kali 4096 Jul 15 08:30 .cache
-drwx------ 13 kali kali 4096 Jul 15 08:29 .config
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Desktop
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Documents
-drwxr-xr-x  2 kali kali 4096 Jul 15 10:18 Downloads
-drwx------  3 kali kali 4096 Jun 20 09:20 .gnupg
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Music
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Pictures
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Public
--rw-r--r--  1 kali kali  807 Jun 20 09:15 .profile
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Templates
-drwxr-xr-x  2 kali kali 4096 Jul 10 14:22 Videos
-drwxr-xr-x  3 kali kali 4096 Jul 14 16:45 tools`,
-            
-            'cd tools': '',
-            
-            'ls': `metasploit  nmap-scripts  exploit-db  wordlists`,
-            
-            'nmap -h': `Nmap 7.92 ( https://nmap.org )
-Usage: nmap [Scan Type(s)] [Options] {target specification}
-TARGET SPECIFICATION:
-  Can pass hostnames, IP addresses, networks, etc.
-  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
-  -iL <inputfilename>: Input from list of hosts/networks
-  -iR <num hosts>: Choose random targets
-  --exclude <host1[,host2][,host3],...>: Exclude hosts/networks
-  --excludefile <exclude_file>: Exclude list from file
-...
-(Use -h for brief help; -hh or --help for full help)`,
-            
-            'sudo apt update': `[sudo] password for kali: 
-Hit:1 http://kali.download/kali kali-rolling InRelease
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-152 packages can be upgraded. Run 'apt list --upgradable' to see them.`,
-            
-            'apt list --upgradable | head -n 5': `Listing... Done
-accountsservice/kali-rolling 22.08.8-1 amd64 [upgradable from: 22.08.8-0kali1]
-acl/kali-rolling 2.3.1-1 amd64 [upgradable from: 2.3.1-0kali1]
-adwaita-icon-theme/kali-rolling 42.0-1 all [upgradable from: 41.0-1]
-alsa-ucm-conf/kali-rolling 1.2.7.1-1 all [upgradable from: 1.2.6.3-1]
-amd64-microcode/kali-rolling 3.20191218.1+really3.20220411.1 amd64 [upgradable from: 3.20191218.1]`,
-            
-            'whoami': 'kali',
+drwxr-xr-x  6 root root  4096 Aug 15 10:23 .
+drwxr-xr-x 20 root root  4096 Aug 15 09:45 ..
+-rw-r--r--  1 root root   570 Jan 31  2020 .bashrc
+drwx------  2 root root  4096 Aug 15 10:15 .cache
+drwx------  3 root root  4096 Aug 15 10:18 .config
+-rw-r--r--  1 root root   161 Jul  9  2019 .profile
+drwxr-xr-x  2 root root  4096 Aug 15 10:20 Desktop
+drwxr-xr-x  2 root root  4096 Aug 15 10:21 Documents`,
             
             'ifconfig': `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.1.105  netmask 255.255.255.0  broadcast 192.168.1.255
-        inet6 fe80::a00:27ff:fe2b:cc5a  prefixlen 64  scopeid 0x20<link>
-        ether 08:00:27:2b:cc:5a  txqueuelen 1000  (Ethernet)
-        RX packets 2458  bytes 218676 (213.5 KiB)
+        inet6 fe80::a00:27ff:fe2b:7d5c  prefixlen 64  scopeid 0x20<link>
+        ether 08:00:27:2b:7d:5c  txqueuelen 1000  (Ethernet)
+        RX packets 1258  bytes 118345 (115.5 KiB)
         RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 1845  bytes 267328 (261.0 KiB)
+        TX packets 896  bytes 104218 (101.7 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu1500
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         inet 127.0.0.1  netmask 255.0.0.0
         inet6 ::1  prefixlen 128  scopeid 0x10<host>
         loop  txqueuelen 1000  (Local Loopback)
@@ -171,135 +102,148 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu1500
             
             'netstat -tuln': `Active Internet connections (only servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN     
 tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN     
-tcp6       0      0 ::1:5432                :::*                    LISTEN     
+tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN     
 tcp6       0      0 ::1:631                 :::*                    LISTEN     
 udp        0      0 0.0.0.0:68              0.0.0.0:*                          
 udp        0      0 0.0.0.0:5353            0.0.0.0:*                          
 udp6       0      0 :::5353                 :::*`,
             
-            'history | tail -n 5': `  123  ls -la
-  124  cd tools
-  125  ls
-  126  nmap -h
-  127  sudo apt update`
+            'ps aux | grep -i metasploit': `root       892  0.0  0.1  12348  5678 ?        S    10:15   0:00 /usr/bin/ruby /usr/bin/msfconsole
+root       905  0.5  5.2 123456 78901 ?       Sl   10:15   0:03 /usr/bin/ruby /usr/bin/msfconsole
+root      1203  0.0  0.0  12345  6789 pts/0    S+   10:25   0:00 grep --color=auto -i metasploit`,
+            
+            'cat /etc/os-release': `PRETTY_NAME="Kali GNU/Linux Rolling"
+NAME="Kali GNU/Linux"
+ID=kali
+VERSION="2023.3"
+VERSION_ID="2023.3"
+VERSION_CODENAME="kali-rolling"
+ID_LIKE=debian
+ANSI_COLOR="1;31"
+HOME_URL="https://www.kali.org/"
+SUPPORT_URL="https://forums.kali.org/"
+BUG_REPORT_URL="https://bugs.kali.org/"`,
+            
+            'nmap -sP 192.168.1.0/24': `Starting Nmap 7.93 ( https://nmap.org ) at 2023-08-15 10:30 EDT
+Nmap scan report for 192.168.1.1
+Host is up (0.0023s latency).
+Nmap scan report for 192.168.1.100
+Host is up (0.012s latency).
+Nmap scan report for 192.168.1.105
+Host is up (0.00034s latency).
+Nmap scan report for 192.168.1.107
+Host is up (0.021s latency).
+Nmap done: 256 IP addresses (4 hosts up) scanned in 3.21 seconds`,
+            
+            'apt list --upgradable': `Listing... Done
+aircrack-ng/kali-rolling 1:1.7-5 amd64 [upgradable from: 1:1.6+git20230526.85e9f0a-0kali1]
+firefox/kali-rolling 116.0.3-1 amd64 [upgradable from: 116.0.2-1]
+kali-linux-core/kali-rolling 2023.3.0 all [upgradable from: 2023.2.0]
+metasploit-framework/kali-rolling 6.3.35-0kali1 amd64 [upgradable from: 6.3.34-0kali1]
+nmap/kali-rolling 7.94+dfsg1-1 amd64 [upgradable from: 7.93+dfsg1-1]`
         };
         
-        // Sequence of commands to execute automatically
+        // 要自动执行的命令序列
         const commandSequence = [
             'uname -a',
-            'ls',
             'ls -la',
-            'cd tools',
-            'ls',
-            'nmap -h',
-            'sudo apt update',
-            'apt list --upgradable | head -n 5',
-            'whoami',
             'ifconfig',
             'netstat -tuln',
-            'history | tail -n 5'
+            'ps aux | grep -i metasploit',
+            'cat /etc/os-release',
+            'nmap -sP 192.168.1.0/24',
+            'apt list --upgradable'
         ];
         
-        // Current position in command sequence
-        let sequenceIndex = 0;
+        // 显示初始欢迎信息
+        function showWelcomeMessage() {
+            const welcome = document.createElement('div');
+            welcome.className = 'output';
+            welcome.textContent = `Linux kali 5.10.0-kali9-amd64 #1 SMP Debian 5.10.46-4kali1 (2021-08-09) x86_64
+
+The programs included with the Kali GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Kali GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.`;
+            terminal.appendChild(welcome);
+            scrollToBottom();
+        }
         
-        // Function to type a command character by character
-        function typeCommand(command, index = 0) {
+        // 添加命令到终端
+        function addCommandToTerminal(command) {
+            const prompt = document.createElement('div');
+            prompt.className = 'prompt';
+            
+            const user = document.createElement('span');
+            user.className = 'user';
+            user.textContent = 'root@kali:~#';
+            
+            const cmd = document.createElement('span');
+            cmd.className = 'command';
+            cmd.textContent = command;
+            
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            
+            prompt.appendChild(user);
+            prompt.appendChild(cmd);
+            prompt.appendChild(cursor);
+            terminal.appendChild(prompt);
+            scrollToBottom();
+            
+            // 移除光标并显示输出
             return new Promise(resolve => {
-                if (index < command.length) {
-                    currentCommand.textContent += command.charAt(index);
-                    setTimeout(() => {
-                        typeCommand(command, index + 1).then(resolve);
-                    }, 50); // Typing speed
-                } else {
-                    // Add a small delay after command is fully typed
-                    setTimeout(resolve, 800);
-                }
+                setTimeout(() => {
+                    cursor.remove();
+                    resolve();
+                }, 1000);
             });
         }
         
-        // Function to execute a command and display output
-        function executeCommand(command) {
-            return new Promise(resolve => {
-                // Add the command to output with prompt
-                const commandLine = document.createElement('div');
-                commandLine.innerHTML = `<span class="text-terminal-prompt font-bold">kali@kali</span><span class="mx-1">:</span><span class="text-blue-400">~</span><span class="mx-1">$</span><span class="ml-1">${command}</span>`;
-                terminalOutput.appendChild(commandLine);
-                
-                // Clear the command input
-                currentCommand.textContent = '';
-                
-                // Get output from command database or show error
-                let output = commandDatabase[command];
-                if (output === undefined) {
-                    output = `bash: ${command}: command not found`;
-                }
-                
-                // Split output into lines and add each to terminal
-                setTimeout(() => {
-                    if (output) {
-                        const lines = output.split('\n');
-                        lines.forEach((line, i) => {
-                            setTimeout(() => {
-                                const outputLine = document.createElement('div');
-                                // Special styling for error messages
-                                if (line.includes('command not found') || line.includes('error')) {
-                                    outputLine.className = 'text-terminal-error';
-                                } else if (line.includes('password') || line.includes('Warning')) {
-                                    outputLine.className = 'text-terminal-info';
-                                }
-                                outputLine.textContent = line;
-                                terminalOutput.appendChild(outputLine);
-                                
-                                // Scroll to bottom
-                                terminalOutput.scrollTop = terminalOutput.scrollHeight;
-                                
-                                // Resolve when all lines are added
-                                if (i === lines.length - 1) {
-                                    setTimeout(resolve, 1000);
-                                }
-                            }, i * 50); // Delay between lines
-                        });
-                    } else {
-                        // No output for this command
-                        setTimeout(resolve, 500);
-                    }
-                }, 500);
-            });
+        // 添加命令输出到终端
+        function addOutputToTerminal(output) {
+            const outputDiv = document.createElement('div');
+            outputDiv.className = 'output';
+            outputDiv.textContent = output;
+            terminal.appendChild(outputDiv);
+            scrollToBottom();
         }
         
-        // Function to run the next command in sequence
-        function runNextCommand() {
-            if (sequenceIndex < commandSequence.length) {
-                const command = commandSequence[sequenceIndex];
-                sequenceIndex++;
+        // 自动滚动到底部
+        function scrollToBottom() {
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // 按顺序执行命令
+        async function executeCommandsSequentially() {
+            showWelcomeMessage();
+            
+            // 等待欢迎信息显示
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // 依次执行命令序列
+            for (const command of commandSequence) {
+                // 添加命令到终端并等待光标动画
+                await addCommandToTerminal(command);
                 
-                // Type and execute the command
-                typeCommand(command)
-                    .then(() => executeCommand(command))
-                    .then(() => {
-                        // Wait a bit before next command
-                        setTimeout(runNextCommand, 2000);
-                    });
-            } else {
-                // All commands executed, restart after delay
-                setTimeout(() => {
-                    // Clear previous output except welcome message
-                    while (terminalOutput.children.length > 8) {
-                        terminalOutput.removeChild(terminalOutput.lastChild);
-                    }
-                    sequenceIndex = 0;
-                    runNextCommand();
-                }, 10000);
+                // 获取并显示命令输出
+                const output = commands[command] || `Command not found: ${command}`;
+                addOutputToTerminal(output);
+                
+                // 等待一段时间再执行下一个命令（2-5秒随机）
+                const delay = 2000 + Math.random() * 3000;
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
+            
+            // 所有命令执行完毕后，显示最后一个提示符
+            await addCommandToTerminal('');
         }
         
-        // Start the command sequence when page loads
-        window.addEventListener('load', () => {
-            setTimeout(runNextCommand, 1500);
-        });
+        // 启动命令执行
+        executeCommandsSequentially();
     </script>
 </body>
 </html>
