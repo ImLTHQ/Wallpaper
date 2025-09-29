@@ -156,6 +156,20 @@ nmap/kali-rolling 7.94+dfsg1-1 amd64 [upgradable from: 7.93+dfsg1-1]`
             'apt list --upgradable'
         ];
         
+        // 随机执行命令并循环
+        function executeRandomCommand() {
+            const randomIndex = Math.floor(Math.random() * commandSequence.length);
+            const command = commandSequence[randomIndex];
+            addCommandToTerminal(command).then(() => {
+                const output = document.createElement('div');
+                output.className = 'output';
+                output.textContent = commands[command];
+                terminal.appendChild(output);
+                scrollToBottom();
+                setTimeout(executeRandomCommand, 2000); // 2秒后执行下一个随机命令
+            });
+        }
+        
         // 显示初始欢迎信息
         function showWelcomeMessage() {
             const welcome = document.createElement('div');
@@ -170,6 +184,7 @@ Kali GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.`;
             terminal.appendChild(welcome);
             scrollToBottom();
+            executeRandomCommand(); // 开始随机执行命令
         }
         
         // 添加命令到终端
