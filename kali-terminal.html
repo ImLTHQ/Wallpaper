@@ -161,12 +161,14 @@ nmap/kali-rolling 7.94+dfsg1-1 amd64 [upgradable from: 7.93+dfsg1-1]`
             const randomIndex = Math.floor(Math.random() * commandSequence.length);
             const command = commandSequence[randomIndex];
             addCommandToTerminal(command).then(() => {
-                const output = document.createElement('div');
-                output.className = 'output';
-                output.textContent = commands[command];
-                terminal.appendChild(output);
-                scrollToBottom();
-                setTimeout(executeRandomCommand, 2000); // 2秒后执行下一个随机命令
+                setTimeout(() => {
+                    const output = document.createElement('div');
+                    output.className = 'output';
+                    output.textContent = commands[command];
+                    terminal.appendChild(output);
+                    scrollToBottom();
+                    setTimeout(executeRandomCommand, 2000); // 2秒后执行下一个随机命令
+                }, command.length * 300); // 等待命令完全显示后再执行输出
             });
         }
         
@@ -198,6 +200,17 @@ permitted by applicable law.`;
             
             const cmd = document.createElement('span');
             cmd.className = 'command';
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < command.length) {
+                    cmd.textContent += command.charAt(i);
+                    i++;
+                    scrollToBottom();
+                } else {
+                    clearInterval(interval);
+                }
+            }, 300); // 300ms per character (200 characters per minute)
             cmd.textContent = command;
             
             const cursor = document.createElement('span');
