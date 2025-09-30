@@ -4,19 +4,19 @@
         "properties": {
             "gradientColor1": {
                 "order": 0,
-                "text": "渐变起始色1",
+                "text": "color1",
                 "type": "color",
                 "value": "255 100 180"
             },
             "gradientColor2": {
                 "order": 1,
-                "text": "渐变起始色2",
+                "text": "color2",
                 "type": "color",
                 "value": "200 160 255"
             },
             "gradientColor3": {
                 "order": 2,
-                "text": "渐变起始色3",
+                "text": "color3",
                 "type": "color",
                 "value": "0 255 255"
             }
