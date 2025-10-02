@@ -1,6 +1,4 @@
 {
-	"contentrating" : "Everyone",
-	"description" : "",
 	"file" : "index.html",
 	"general" : 
 	{
@@ -105,24 +103,7 @@
 				"text" : "粒子数量",
 				"type" : "slider",
 				"value" : 5000
-			},
-			"schemecolor" : 
-			{
-				"order" : 0,
-				"text" : "ui_browse_properties_scheme_color",
-				"type" : "color",
-				"value" : "0 0 0"
 			}
 		}
-	},
-	"preview" : "preview.gif",
-	"ratingsex" : "none",
-	"ratingviolence" : "none",
-	"tags" : [ "Abstract" ],
-	"title" : "重力粒子",
-	"type" : "Web",
-	"version" : 7,
-	"visibility" : "public",
-	"workshopid" : "2609198952",
-	"workshopurl" : "steam://url/CommunityFilePage/2609198952"
+	}
 }
