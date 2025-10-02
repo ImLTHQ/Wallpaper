@@ -19,10 +19,10 @@ const mouse = {
 };
 
 const config = {
-	particle_color: "#fff",
+	particle_color: "1 1 1",
 	particle_size: 1,
-	particle_num: 2000,
-	gravity: 1,
+	particle_num: 1000,
+	gravity: 0.5,
 	click_gravity: -5,
 	edge_mode: '0',
 	damping: .99,
