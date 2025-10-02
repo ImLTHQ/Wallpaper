@@ -50,6 +50,27 @@
                 posX += speedX;
                 posY += speedY;
 
+                // Check for collisions with other particles
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(otherParticle => {
+                    if (otherParticle !== particle) {
+                        const otherPosX = parseFloat(otherParticle.style.left);
+                        const otherPosY = parseFloat(otherParticle.style.top);
+                        const distance = Math.sqrt(Math.pow(posX - otherPosX, 2) + Math.pow(posY - otherPosY, 2));
+                        const minDistance = parseFloat(particle.style.width) / 2 + parseFloat(otherParticle.style.width) / 2;
+
+                        if (distance < minDistance) {
+                            // Simple elastic collision response
+                            const tempSpeedX = speedX;
+                            const tempSpeedY = speedY;
+                            speedX = otherParticle.speedX || tempSpeedX;
+                            speedY = otherParticle.speedY || tempSpeedY;
+                            otherParticle.speedX = tempSpeedX;
+                            otherParticle.speedY = tempSpeedY;
+                        }
+                    }
+                });
+
                 if (posX < 0 || posX > window.innerWidth) speedX *= -1;
                 if (posY < 0 || posY > window.innerHeight) speedY *= -1;
 
