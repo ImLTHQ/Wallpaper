@@ -61,7 +61,7 @@
 				"step" : 0.01,
 				"text" : "重力",
 				"type" : "slider",
-				"value" : 1
+				"value" : 0.5
 			},
 			"pcolor" : 
 			{
