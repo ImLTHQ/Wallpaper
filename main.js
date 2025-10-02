@@ -1,7 +1,11 @@
 "use strict";
 const canvas = document.querySelector("canvas");
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+function resizeCanvas() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 const ctx = canvas.getContext("2d");
 const info = document.getElementById("info");
 var mouse = {
