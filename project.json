@@ -104,7 +104,7 @@
 				"order" : 105,
 				"text" : "粒子数量",
 				"type" : "slider",
-				"value" : 1000
+				"value" : 5000
 			},
 			"psize" : 
 			{
