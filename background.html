@@ -1,5 +1,64 @@
 <style>
     body {
         background: linear-gradient(135deg, rgb(255, 100, 180), rgb(200, 160, 255), rgb(0, 255, 255));
+        overflow: hidden;
+        position: relative;
+    }
+
+    .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        pointer-events: none;
     }
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const body = document.body;
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            createParticle();
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            const size = Math.random() * 5 + 2;
+            const posX = Math.random() * window.innerWidth;
+            const posY = Math.random() * window.innerHeight;
+
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${posX}px`;
+            particle.style.top = `${posY}px`;
+
+            body.appendChild(particle);
+
+            animateParticle(particle);
+        }
+
+        function animateParticle(particle) {
+            let posX = parseFloat(particle.style.left);
+            let posY = parseFloat(particle.style.top);
+            let speedX = (Math.random() - 0.5) * 2;
+            let speedY = (Math.random() - 0.5) * 2;
+
+            function move() {
+                posX += speedX;
+                posY += speedY;
+
+                if (posX < 0 || posX > window.innerWidth) speedX *= -1;
+                if (posY < 0 || posY > window.innerHeight) speedY *= -1;
+
+                particle.style.left = `${posX}px`;
+                particle.style.top = `${posY}px`;
+
+                requestAnimationFrame(move);
+            }
+
+            move();
+        }
+    });
+</script>
