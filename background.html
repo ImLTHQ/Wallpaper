@@ -42,8 +42,9 @@
         function animateParticle(particle) {
             let posX = parseFloat(particle.style.left);
             let posY = parseFloat(particle.style.top);
-            let speedX = (Math.random() - 0.5) * 2;
-            let speedY = (Math.random() - 0.5) * 2;
+            // Generate speed in ranges [-1, -0.5] and [0.5, 1]
+            let speedX = (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5);
+            let speedY = (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5);
 
             function move() {
                 posX += speedX;
