@@ -7,8 +7,16 @@
 
     .particle {
         position: absolute;
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.8);
         border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .line {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.5);
+        height: 1px;
+        transform-origin: left center;
         pointer-events: none;
     }
 </style>
@@ -16,6 +24,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const body = document.body;
         const particleCount = 100;
+        const particles = [];
+        const lines = [];
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', function(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
 
         for (let i = 0; i < particleCount; i++) {
             createParticle();
@@ -35,11 +52,17 @@
             particle.style.top = `${posY}px`;
 
             body.appendChild(particle);
+            particles.push(particle);
 
-            animateParticle(particle);
+            const line = document.createElement('div');
+            line.className = 'line';
+            body.appendChild(line);
+            lines.push(line);
+
+            animateParticle(particle, line);
         }
 
-        function animateParticle(particle) {
+        function animateParticle(particle, line) {
             let posX = parseFloat(particle.style.left);
             let posY = parseFloat(particle.style.top);
             let speedX = (Math.random() - 0.5) * 2;
@@ -54,6 +77,23 @@
 
                 particle.style.left = `${posX}px`;
                 particle.style.top = `${posY}px`;
+
+                // Update line position and length
+                const dx = mouseX - posX;
+                const dy = mouseY - posY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                // Only show line if distance is less than 100px
+                if (distance < 100) {
+                    line.style.width = `${distance}px`;
+                    line.style.left = `${posX}px`;
+                    line.style.top = `${posY}px`;
+                    line.style.transform = `rotate(${angle}rad)`;
+                    line.style.display = 'block';
+                } else {
+                    line.style.display = 'none';
+                }
 
                 requestAnimationFrame(move);
             }
