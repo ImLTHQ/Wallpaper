@@ -116,7 +116,7 @@ addEventListener("click", () => {
 });
 
 (function animate() {
-	ctx.globalAlpha = 0.2;
+	ctx.globalAlpha = 1;
 	const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 	gradient.addColorStop(0, 'rgb(255, 100, 180)');
 	gradient.addColorStop(0.5, 'rgb(200, 160, 255)');
