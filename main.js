@@ -1,14 +1,15 @@
 "use strict";
 const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
 function resizeCanvas() {
     canvas.width = innerWidth;
     canvas.height = innerHeight;
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
-const ctx = canvas.getContext("2d");
-const info = document.getElementById("info");
-var mouse = {
+
+const mouse = {
 	x: canvas.width / 2,
 	y: canvas.height / 2,
 	getXY: function (ev) {
@@ -16,7 +17,8 @@ var mouse = {
 		this.y = ev.clientY;
 	}
 };
-var config = {
+
+const config = {
 	particle_color: "#fff",
 	particle_size: 1,
 	particle_num: 2000,
@@ -37,7 +39,6 @@ window.wallpaperPropertyListener = {
 			config.particle_size = properties.psize.value;
 			ctx.lineWidth = config.particle_size;
 		}
-		if (properties.pnum) config.particle_num = properties.pnum.value;
 		if (properties.g) config.gravity = properties.g.value;
 		if (properties.cg) config.click_gravity = properties.cg.value;
 		if (properties.edge) config.edge_mode = properties.edge.value;
@@ -100,9 +101,10 @@ class Particle {
 	}
 }
 
-var particles = new Array();
-for (let i = 0; i < 10000; i++)
+const particles = [];
+for (let i = 0; i < config.particle_num; i++) {
 	particles.push(new Particle());
+}
 
 addEventListener("mousemove", ev => {
 	mouse.getXY(ev);
@@ -113,7 +115,6 @@ addEventListener("click", () => {
 	setTimeout(() => { config.gravity /= config.click_gravity }, 50);
 });
 
-var fps = 0;
 (function animate() {
 	ctx.globalAlpha = 0.2;
 	const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -123,12 +124,8 @@ var fps = 0;
 	ctx.fillStyle = gradient;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.globalAlpha = 1;
-	for (let i = 0; i < config.particle_num; i++)
+	for (let i = 0; i < config.particle_num; i++) {
 		particles[i].update(config.gravity);
-	fps++;
+	}
 	requestAnimationFrame(animate);
 })();
-setInterval(() => {
-	info.innerHTML = '';
-	fps = 0;
-}, 1000);
