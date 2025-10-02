@@ -6,43 +6,6 @@
 	{
 		"properties" : 
 		{
-			"bgcolor" : 
-			{
-				"condition" : "bgmode.value==0",
-				"index" : 1,
-				"order" : 101,
-				"text" : "背景颜色",
-				"type" : "color",
-				"value" : "0 0 0"
-			},
-			"bgimg" : 
-			{
-				"condition" : "bgmode.value==1",
-				"index" : 3,
-				"order" : 103,
-				"text" : "背景图片",
-				"type" : "file",
-				"value" : ""
-			},
-			"bgmode" : 
-			{
-				"index" : 0,
-				"options" : 
-				[
-					{
-						"label" : "纯色",
-						"value" : "0"
-					},
-					{
-						"label" : "图片",
-						"value" : "1"
-					}
-				],
-				"order" : 100,
-				"text" : "背景",
-				"type" : "combo",
-				"value" : "0"
-			},
 			"cg" : 
 			{
 				"fraction" : false,
@@ -85,14 +48,6 @@
 				"text" : "边界模式",
 				"type" : "combo",
 				"value" : "0"
-			},
-			"fps" : 
-			{
-				"index" : 10,
-				"order" : 110,
-				"text" : "显示FPS",
-				"type" : "bool",
-				"value" : false
 			},
 			"g" : 
 			{
