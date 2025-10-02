@@ -26,9 +26,9 @@ const config = {
 	click_gravity: -5,
 	edge_mode: '0',
 	damping: .99,
-	gradient_color1: "0 0 0",
-	gradient_color2: "0 0 0",
-	gradient_color3: "0 0 0"
+	gradient_color1: "1 0.4 0.7",
+	gradient_color2: "0.8 0.6 1",
+	gradient_color3: "0 1 1"
 };
 
 window.wallpaperPropertyListener = {
