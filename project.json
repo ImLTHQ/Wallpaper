@@ -6,6 +6,30 @@
 	{
 		"properties" : 
 		{
+			"gradient_color1" : 
+			{
+				"index" : 10,
+				"order" : 110,
+				"text" : "渐变起始色1",
+				"type" : "color",
+				"value" : "1 0.4 0.7"
+			},
+			"gradient_color2" : 
+			{
+				"index" : 11,
+				"order" : 111,
+				"text" : "渐变起始色2",
+				"type" : "color",
+				"value" : "0.8 0.6 1"
+			},
+			"gradient_color3" : 
+			{
+				"index" : 12,
+				"order" : 112,
+				"text" : "渐变起始色3",
+				"type" : "color",
+				"value" : "0 1 1"
+			},
 			"cg" : 
 			{
 				"fraction" : false,

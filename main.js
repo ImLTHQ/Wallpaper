@@ -25,7 +25,10 @@ const config = {
 	gravity: 1,
 	click_gravity: -5,
 	edge_mode: '0',
-	damping: .99
+	damping: .99,
+	gradient_color1: "0 0 0",
+	gradient_color2: "0 0 0",
+	gradient_color3: "0 0 0"
 };
 
 window.wallpaperPropertyListener = {
@@ -43,6 +46,9 @@ window.wallpaperPropertyListener = {
 		if (properties.cg) config.click_gravity = properties.cg.value;
 		if (properties.edge) config.edge_mode = properties.edge.value;
 		if (properties.d) config.damping = properties.d.value;
+		if (properties.gradient_color1) config.gradient_color1 = properties.gradient_color1.value;
+		if (properties.gradient_color2) config.gradient_color2 = properties.gradient_color2.value;
+		if (properties.gradient_color3) config.gradient_color3 = properties.gradient_color3.value;
 	}
 };
 
@@ -118,9 +124,12 @@ addEventListener("click", () => {
 (function animate() {
 	ctx.globalAlpha = 1;
 	const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-	gradient.addColorStop(0, 'rgb(255, 100, 180)');
-	gradient.addColorStop(0.5, 'rgb(200, 160, 255)');
-	gradient.addColorStop(1, 'rgb(0, 255, 255)');
+	let c1 = config.gradient_color1.split(' ');
+	let c2 = config.gradient_color2.split(' ');
+	let c3 = config.gradient_color3.split(' ');
+	gradient.addColorStop(0, `rgb(${c1[0] * 255},${c1[1] * 255},${c1[2] * 255})`);
+	gradient.addColorStop(0.5, `rgb(${c2[0] * 255},${c2[1] * 255},${c2[2] * 255})`);
+	gradient.addColorStop(1, `rgb(${c3[0] * 255},${c3[1] * 255},${c3[2] * 255})`);
 	ctx.fillStyle = gradient;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.globalAlpha = 1;
