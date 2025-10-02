@@ -106,18 +106,6 @@
 				"type" : "slider",
 				"value" : 5000
 			},
-			"psize" : 
-			{
-				"condition" : "",
-				"fraction" : false,
-				"index" : 4,
-				"max" : 10,
-				"min" : 1,
-				"order" : 104,
-				"text" : "粒子大小",
-				"type" : "slider",
-				"value" : 1
-			},
 			"schemecolor" : 
 			{
 				"order" : 0,

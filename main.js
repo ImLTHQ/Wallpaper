@@ -20,7 +20,6 @@ const mouse = {
 
 const config = {
 	particle_color: "1 1 1",
-	particle_size: 1,
 	particle_num: 1000,
 	gravity: 0.5,
 	click_gravity: -5,
@@ -38,10 +37,7 @@ window.wallpaperPropertyListener = {
 			config.particle_color = `rgb(${c[0] * 255},${c[1] * 255},${c[2] * 255})`;
 			ctx.strokeStyle = config.particle_color;
 		}
-		if (properties.psize) {
-			config.particle_size = properties.psize.value;
-			ctx.lineWidth = config.particle_size;
-		}
+		ctx.lineWidth = 1;
 		if (properties.g) config.gravity = properties.g.value;
 		if (properties.cg) config.click_gravity = properties.cg.value;
 		if (properties.edge) config.edge_mode = properties.edge.value;
