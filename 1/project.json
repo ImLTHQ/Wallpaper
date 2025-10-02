@@ -1,0 +1,161 @@
+{
+	"contentrating" : "Everyone",
+	"description" : "",
+	"file" : "index.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"bgcolor" : 
+			{
+				"condition" : "bgmode.value==0",
+				"index" : 1,
+				"order" : 101,
+				"text" : "背景颜色",
+				"type" : "color",
+				"value" : "0 0 0"
+			},
+			"bgimg" : 
+			{
+				"condition" : "bgmode.value==1",
+				"index" : 3,
+				"order" : 103,
+				"text" : "背景图片",
+				"type" : "file",
+				"value" : ""
+			},
+			"bgmode" : 
+			{
+				"index" : 0,
+				"options" : 
+				[
+					{
+						"label" : "纯色",
+						"value" : "0"
+					},
+					{
+						"label" : "图片",
+						"value" : "1"
+					}
+				],
+				"order" : 100,
+				"text" : "背景",
+				"type" : "combo",
+				"value" : "0"
+			},
+			"cg" : 
+			{
+				"fraction" : false,
+				"index" : 7,
+				"max" : 10,
+				"min" : -10,
+				"order" : 107,
+				"text" : "点击时重力系数",
+				"type" : "slider",
+				"value" : -5
+			},
+			"d" : 
+			{
+				"fraction" : true,
+				"index" : 9,
+				"max" : 1,
+				"min" : 0.9,
+				"order" : 109,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "阻尼",
+				"type" : "slider",
+				"value" : 0.99
+			},
+			"edge" : 
+			{
+				"index" : 8,
+				"options" : 
+				[
+					{
+						"label" : "无边界",
+						"value" : "0"
+					},
+					{
+						"label" : "有边界",
+						"value" : "1"
+					}
+				],
+				"order" : 108,
+				"text" : "边界模式",
+				"type" : "combo",
+				"value" : "0"
+			},
+			"fps" : 
+			{
+				"index" : 10,
+				"order" : 110,
+				"text" : "显示FPS",
+				"type" : "bool",
+				"value" : false
+			},
+			"g" : 
+			{
+				"condition" : "",
+				"fraction" : true,
+				"index" : 6,
+				"max" : 10,
+				"min" : 0,
+				"order" : 106,
+				"precision" : 3,
+				"step" : 0.01,
+				"text" : "重力",
+				"type" : "slider",
+				"value" : 1
+			},
+			"pcolor" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "粒子颜色",
+				"type" : "color",
+				"value" : "1 1 1"
+			},
+			"pnum" : 
+			{
+				"fraction" : false,
+				"index" : 5,
+				"max" : 10000,
+				"min" : 1,
+				"order" : 105,
+				"text" : "粒子数量",
+				"type" : "slider",
+				"value" : 2000
+			},
+			"psize" : 
+			{
+				"condition" : "",
+				"fraction" : false,
+				"index" : 4,
+				"max" : 10,
+				"min" : 1,
+				"order" : 104,
+				"text" : "粒子大小",
+				"type" : "slider",
+				"value" : 1
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			}
+		}
+	},
+	"preview" : "preview.gif",
+	"ratingsex" : "none",
+	"ratingviolence" : "none",
+	"tags" : [ "Abstract" ],
+	"title" : "重力粒子",
+	"type" : "Web",
+	"version" : 7,
+	"visibility" : "public",
+	"workshopid" : "2609198952",
+	"workshopurl" : "steam://url/CommunityFilePage/2609198952"
+}
