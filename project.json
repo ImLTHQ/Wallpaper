@@ -69,7 +69,7 @@
 				"order" : 108,
 				"text" : "边界模式",
 				"type" : "combo",
-				"value" : "0"
+				"value" : "1"
 			},
 			"g" : 
 			{
