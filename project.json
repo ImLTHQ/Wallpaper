@@ -39,19 +39,7 @@
 				"type" : "slider",
 				"value" : -5
 			},
-			"d" : 
-			{
-				"fraction" : true,
-				"index" : 9,
-				"max" : 1,
-				"min" : 0.9,
-				"order" : 109,
-				"precision" : 4,
-				"step" : 0.001,
-				"text" : "阻尼",
-				"type" : "slider",
-				"value" : 0.99
-			},
+			
 			"edge" : 
 			{
 				"index" : 8,
