@@ -13,8 +13,10 @@ const PARTICLE_SIZE_MIN = 3; // 粒子最小大小
 const PARTICLE_SIZE_MAX = 5; // 粒子最大大小
 const LINE_WIDTH = 1; // 连线粗细
 const PARTICLE_DENSITY = 10000; // 每多少平方像素一个粒子
-const MIN_LIFESPAN = 10000; // 最小生命周期(毫秒)
-const MAX_LIFESPAN = 20000; // 最大生命周期(毫秒)
+const MIN_LIFESPAN = 15000; // 最小生命周期(毫秒)
+const MAX_LIFESPAN = 30000; // 最大生命周期(毫秒)
+const VERTICAL_EDGE_COUNT = 20; // 上下边缘同时生成的粒子数量
+const HORIZONTAL_EDGE_COUNT = 10; // 左右边缘同时生成的粒子数量
 
 // 粒子数组
 let particles = [];
@@ -39,7 +41,21 @@ function createInitialParticles() {
 
 // 创建从窗口外进入的新粒子
 function createOutsideParticle() {
-    const edge = Math.floor(Math.random() * 4); // 0:上, 1:右, 2:下, 3:左
+    // 基于边缘粒子数量比例随机选择边缘
+    const totalWeight = VERTICAL_EDGE_COUNT * 2 + HORIZONTAL_EDGE_COUNT * 2;
+    let random = Math.random() * totalWeight;
+    
+    let edge;
+    if (random < VERTICAL_EDGE_COUNT) {
+        edge = 0; // 上边
+    } else if (random < VERTICAL_EDGE_COUNT + HORIZONTAL_EDGE_COUNT) {
+        edge = 1; // 右边
+    } else if (random < VERTICAL_EDGE_COUNT * 2 + HORIZONTAL_EDGE_COUNT) {
+        edge = 2; // 下边
+    } else {
+        edge = 3; // 左边
+    }
+    
     let x, y, angle;
     const offset = 50; // 粒子生成在窗口外的距离
     
