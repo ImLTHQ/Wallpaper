@@ -6,14 +6,14 @@ const ctx = canvas.getContext("2d");
 const PARTICLE_SPEED = 0.25; // 粒子固定速度
 const CONNECTION_THRESHOLD = 100; // 粒子连接阈值
 const MAX_CONNECTIONS = 4; // 每个粒子最大连接数
-const TRIANGLE_OPACITY = 0.1; // 三角形基础透明度
-const LINE_OPACITY = 0.2; // 连线基础透明度
+const TRIANGLE_OPACITY = 0.25; // 三角形基础透明度
+const LINE_OPACITY = 0.5; // 连线基础透明度
 const MAX_TRIANGLES = 10; // 最多同时渲染的三角形数量
 const PARTICLE_SIZE_MIN = 3; // 粒子最小大小
 const PARTICLE_SIZE_MAX = 5; // 粒子最大大小
 const LINE_WIDTH = 1; // 连线粗细
 const PARTICLE_DENSITY = 10000; // 每多少平方像素一个粒子
-const MIN_LIFESPAN = 5000; // 最小生命周期(毫秒)
+const MIN_LIFESPAN = 10000; // 最小生命周期(毫秒)
 const MAX_LIFESPAN = 20000; // 最大生命周期(毫秒)
 
 // 粒子数组
