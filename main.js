@@ -1,12 +1,11 @@
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
-
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-window.addEventListener('resize', () => {
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
-});
+const canvas = document.querySelector("canvas"),
+      ctx = canvas.getContext("2d"),
+      resize = () => {
+          canvas.width = innerWidth;
+          canvas.height = innerHeight;
+      };
+resize();
+window.addEventListener('resize', resize);
 
 (function animate() {
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
