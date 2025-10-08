@@ -86,11 +86,11 @@
 				"fraction" : false,
 				"index" : 5,
 				"max" : 10000,
-				"min" : 1,
+				"min" : 1000,
 				"order" : 105,
 				"text" : "粒子数量",
 				"type" : "slider",
-				"value" : 5000
+				"value" : 2500
 			}
 		}
 	}
