@@ -8,6 +8,7 @@ const CONNECTION_THRESHOLD = 100; // 粒子连接阈值
 const MAX_CONNECTIONS = 4; // 每个粒子最大连接数
 const TRIANGLE_OPACITY = 0.1; // 三角形透明度
 const LINE_OPACITY = 0.2; // 连线透明度
+const MAX_TRIANGLES = 20; // 最多同时渲染的三角形数量
 
 // 粒子数组
 let particles = [];
@@ -136,17 +137,18 @@ function drawConnections() {
 
 // 绘制符合条件的三角形
 function drawTriangles() {
+    let triangleCount = 0; // 跟踪已绘制的三角形数量
     // 先确保连接已经计算完成
     // 检查所有可能的三角形组合
-    for (let i = 0; i < particles.length; i++) {
+    for (let i = 0; i < particles.length && triangleCount < MAX_TRIANGLES; i++) {
         // 跳过连接数不足的粒子
         if (particles[i].connections < 2) continue;
         
-        for (let j = i + 1; j < particles.length; j++) {
+        for (let j = i + 1; j < particles.length && triangleCount < MAX_TRIANGLES; j++) {
             // 跳过连接数不足的粒子
             if (particles[j].connections < 2) continue;
             
-            for (let k = j + 1; k < particles.length; k++) {
+            for (let k = j + 1; k < particles.length && triangleCount < MAX_TRIANGLES; k++) {
                 // 跳过连接数不足的粒子
                 if (particles[k].connections < 2) continue;
                 
@@ -163,6 +165,9 @@ function drawTriangles() {
                     ctx.closePath();
                     ctx.fillStyle = `rgba(255, 255, 255, ${TRIANGLE_OPACITY})`;
                     ctx.fill();
+                    
+                    triangleCount++; // 增加计数
+                    if (triangleCount >= MAX_TRIANGLES) break; // 达到最大数量则退出
                 }
             }
         }
