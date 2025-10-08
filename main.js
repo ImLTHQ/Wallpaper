@@ -12,6 +12,7 @@ const MAX_TRIANGLES = 10; // 最多同时渲染的三角形数量
 const PARTICLE_SIZE_MIN = 3; // 粒子最小大小
 const PARTICLE_SIZE_MAX = 5; // 粒子最大大小
 const LINE_WIDTH = 1; // 连线粗细
+const PARTICLE_DENSITY = 20000; // 每多少平方像素一个粒子
 
 // 粒子数组
 let particles = [];
@@ -25,7 +26,8 @@ function resizeCanvas() {
 
 function createParticles() {
     particles = [];
-    const particleCount = Math.floor((canvas.width * canvas.height) / 20000);
+    // 使用常量计算粒子数量
+    const particleCount = Math.floor((canvas.width * canvas.height) / PARTICLE_DENSITY);
     
     for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -41,28 +43,24 @@ function createParticles() {
     }
 }
 
-// 格式化时间为HH:MM格式
+// 其他函数保持不变...
 function formatTime(date) {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
 }
 
-// 检查两点之间的距离
 function getDistance(p1, p2) {
     const dx = p1.x - p2.x;
     const dy = p1.y - p2.y;
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 检查三个点是否能组成三角形（距离都小于阈值且每个粒子都有3个或以上连接）
 function isTriangle(p1, p2, p3) {
     const d1 = getDistance(p1, p2);
     const d2 = getDistance(p2, p3);
     const d3 = getDistance(p3, p1);
     
-    // 三个粒子之间的距离都必须小于连接阈值
-    // 且每个粒子都必须有3个或更多连接
     return d1 < CONNECTION_THRESHOLD && 
            d2 < CONNECTION_THRESHOLD && 
            d3 < CONNECTION_THRESHOLD &&
@@ -71,7 +69,6 @@ function isTriangle(p1, p2, p3) {
            p3.connections >= 3;
 }
 
-// 更新粒子位置
 function updateParticles() {
     particles.forEach(particle => {
         particle.connections = 0;
@@ -79,7 +76,6 @@ function updateParticles() {
         particle.x += particle.dx;
         particle.y += particle.dy;
         
-        // 边界检测
         if (particle.x < 0) particle.x = canvas.width;
         if (particle.x > canvas.width) particle.x = 0;
         if (particle.y < 0) particle.y = canvas.height;
@@ -87,7 +83,6 @@ function updateParticles() {
     });
 }
 
-// 绘制粒子
 function drawParticles() {
     particles.forEach(particle => {
         ctx.beginPath();
@@ -97,7 +92,6 @@ function drawParticles() {
     });
 }
 
-// 绘制粒子间的连线
 function drawConnections() {
     particles.forEach(p => p.connections = 0);
     
@@ -126,7 +120,6 @@ function drawConnections() {
     }
 }
 
-// 绘制符合条件的三角形
 function drawTriangles() {
     let triangleCount = 0;
     for (let i = 0; i < particles.length && triangleCount < MAX_TRIANGLES; i++) {
@@ -159,9 +152,7 @@ function drawTriangles() {
     }
 }
 
-// 动画循环
 function animate() {
-    // 绘制渐变背景
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, "rgb(255, 100, 180)");
     gradient.addColorStop(0.5, "rgb(200, 150, 255)");
@@ -174,7 +165,6 @@ function animate() {
     drawTriangles();
     drawParticles();
 
-    // 显示时间
     const currentTime = formatTime(new Date());
     const fontSize = Math.min(canvas.width, canvas.height) * 0.15;
     ctx.font = `bold ${fontSize}px Arial, sans-serif`;
