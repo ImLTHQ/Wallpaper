@@ -12,9 +12,9 @@ const MAX_TRIANGLES = 10; // 最多同时渲染的三角形数量
 const PARTICLE_SIZE_MIN = 3; // 粒子最小大小
 const PARTICLE_SIZE_MAX = 5; // 粒子最大大小
 const LINE_WIDTH = 1; // 连线粗细
-const PARTICLE_DENSITY = 20000; // 每多少平方像素一个粒子
-const MIN_LIFESPAN = 10000; // 最小生命周期(毫秒)
-const MAX_LIFESPAN = 15000; // 最大生命周期(毫秒)
+const PARTICLE_DENSITY = 10000; // 每多少平方像素一个粒子
+const MIN_LIFESPAN = 5000; // 最小生命周期(毫秒)
+const MAX_LIFESPAN = 20000; // 最大生命周期(毫秒)
 
 // 粒子数组
 let particles = [];
@@ -23,29 +23,63 @@ let particles = [];
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    createParticles();
+    createInitialParticles(); // 初始粒子也从屏幕外进入
 }
 
-function createParticles() {
+// 创建初始粒子（从屏幕外进入）
+function createInitialParticles() {
     particles = [];
-    // 使用常量计算粒子数量
     const particleCount = Math.floor((canvas.width * canvas.height) / PARTICLE_DENSITY);
     
+    // 初始粒子也从屏幕外生成
     for (let i = 0; i < particleCount; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const lifespan = MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN);
-        
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: PARTICLE_SIZE_MIN + Math.random() * (PARTICLE_SIZE_MAX - PARTICLE_SIZE_MIN),
-            dx: Math.cos(angle) * PARTICLE_SPEED,
-            dy: Math.sin(angle) * PARTICLE_SPEED,
-            connections: 0, // 跟踪当前连接数
-            lifespan,
-            birthTime: Date.now()
-        });
+        particles.push(createOutsideParticle());
     }
+}
+
+// 创建从窗口外进入的新粒子
+function createOutsideParticle() {
+    const edge = Math.floor(Math.random() * 4); // 0:上, 1:右, 2:下, 3:左
+    let x, y, angle;
+    const offset = 50; // 粒子生成在窗口外的距离
+    
+    // 根据边缘确定粒子初始位置和进入角度，确保粒子向窗口内移动
+    switch (edge) {
+        case 0: // 上边
+            x = Math.random() * canvas.width;
+            y = -offset;
+            angle = Math.random() * Math.PI - Math.PI/2; // 角度范围: -90°到90°，确保向下移动
+            break;
+        case 1: // 右边
+            x = canvas.width + offset;
+            y = Math.random() * canvas.height;
+            angle = Math.random() * Math.PI + Math.PI/2; // 角度范围: 90°到270°，确保向左移动
+            break;
+        case 2: // 下边
+            x = Math.random() * canvas.width;
+            y = canvas.height + offset;
+            angle = Math.random() * Math.PI + Math.PI/2; // 角度范围: 90°到270°，确保向上移动
+            break;
+        case 3: // 左边
+            x = -offset;
+            y = Math.random() * canvas.height;
+            angle = Math.random() * Math.PI - Math.PI/2; // 角度范围: -90°到90°，确保向右移动
+            break;
+    }
+    
+    const lifespan = MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN);
+    
+    return {
+        x,
+        y,
+        radius: PARTICLE_SIZE_MIN + Math.random() * (PARTICLE_SIZE_MAX - PARTICLE_SIZE_MIN),
+        dx: Math.cos(angle) * PARTICLE_SPEED,
+        dy: Math.sin(angle) * PARTICLE_SPEED,
+        connections: 0,
+        lifespan,
+        birthTime: Date.now(),
+        hasEntered: false // 初始状态为未进入窗口
+    };
 }
 
 function getLifetimeProgress(particle) {
@@ -80,8 +114,23 @@ function isTriangle(p1, p2, p3) {
 
 function updateParticles() {
     const now = Date.now();
-    // 过滤掉生命周期结束的粒子
-    particles = particles.filter(p => now - p.birthTime < p.lifespan);
+    const maxDistance = Math.max(canvas.width, canvas.height) * 1.5; // 最大距离阈值
+    
+    // 过滤掉生命周期结束或无法进入窗口的粒子
+    particles = particles.filter(p => {
+        // 保留已经进入窗口的粒子，直到它们生命周期结束
+        if (p.hasEntered) {
+            return now - p.birthTime < p.lifespan;
+        }
+        
+        // 计算粒子到窗口中心的距离
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const distance = getDistance(p, {x: centerX, y: centerY});
+        
+        // 移除距离过远且尚未进入窗口的粒子
+        return distance < maxDistance;
+    });
     
     particles.forEach(particle => {
         particle.connections = 0;
@@ -89,41 +138,46 @@ function updateParticles() {
         particle.x += particle.dx;
         particle.y += particle.dy;
         
-        // 边界检查
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
+        // 检查粒子是否已进入窗口
+        if (!particle.hasEntered) {
+            if (particle.x >= 0 && particle.x <= canvas.width && 
+                particle.y >= 0 && particle.y <= canvas.height) {
+                particle.hasEntered = true;
+            }
+        } else {
+            // 对于已进入窗口的粒子，处理边界循环
+            if (particle.x < 0) particle.x = canvas.width;
+            if (particle.x > canvas.width) particle.x = 0;
+            if (particle.y < 0) particle.y = canvas.height;
+            if (particle.y > canvas.height) particle.y = 0;
+        }
     });
     
     // 补充新粒子以维持总数
     const targetCount = Math.floor((canvas.width * canvas.height) / PARTICLE_DENSITY);
     while (particles.length < targetCount) {
-        const angle = Math.random() * Math.PI * 2;
-        const lifespan = MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN);
-        
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: PARTICLE_SIZE_MIN + Math.random() * (PARTICLE_SIZE_MAX - PARTICLE_SIZE_MIN),
-            dx: Math.cos(angle) * PARTICLE_SPEED,
-            dy: Math.sin(angle) * PARTICLE_SPEED,
-            connections: 0,
-            lifespan,
-            birthTime: Date.now()
-        });
+        particles.push(createOutsideParticle());
     }
 }
 
 function drawParticles() {
     particles.forEach(particle => {
-        const progress = getLifetimeProgress(particle);
-        const opacity = 1 - progress; // 随时间推移透明度降低
-        
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius * (1 - progress * 0.5), 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        ctx.fill();
+        // 窗口外的粒子保持完全不透明，不衰减
+        if (!particle.hasEntered) {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, 1)`; // 完全不透明
+            ctx.fill();
+        } else {
+            // 进入窗口后的粒子随生命周期逐渐衰减
+            const progress = getLifetimeProgress(particle);
+            const opacity = 1 - progress; // 随时间推移透明度降低
+            
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.radius * (1 - progress * 0.5), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            ctx.fill();
+        }
     });
 }
 
@@ -132,11 +186,11 @@ function drawConnections() {
     
     for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
-        if (p1.connections >= MAX_CONNECTIONS) continue;
+        if (p1.connections >= MAX_CONNECTIONS || !p1.hasEntered) continue;
         
         for (let j = i + 1; j < particles.length; j++) {
             const p2 = particles[j];
-            if (p1.connections < MAX_CONNECTIONS && p2.connections < MAX_CONNECTIONS) {
+            if (p1.connections < MAX_CONNECTIONS && p2.connections < MAX_CONNECTIONS && p2.hasEntered) {
                 const distance = getDistance(p1, p2);
                 
                 if (distance < CONNECTION_THRESHOLD) {
@@ -163,13 +217,13 @@ function drawConnections() {
 function drawTriangles() {
     let triangleCount = 0;
     for (let i = 0; i < particles.length && triangleCount < MAX_TRIANGLES; i++) {
-        if (particles[i].connections < 3) continue;
+        if (particles[i].connections < 3 || !particles[i].hasEntered) continue;
         
         for (let j = i + 1; j < particles.length && triangleCount < MAX_TRIANGLES; j++) {
-            if (particles[j].connections < 3) continue;
+            if (particles[j].connections < 3 || !particles[j].hasEntered) continue;
             
             for (let k = j + 1; k < particles.length && triangleCount < MAX_TRIANGLES; k++) {
-                if (particles[k].connections < 3) continue;
+                if (particles[k].connections < 3 || !particles[k].hasEntered) continue;
                 
                 const p1 = particles[i];
                 const p2 = particles[j];
