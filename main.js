@@ -2,13 +2,16 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-// 粒子配置
+// 粒子配置 - 新增了粒子大小和连线粗细的常量设置
 const PARTICLE_SPEED = 0.25; // 粒子固定速度
 const CONNECTION_THRESHOLD = 100; // 粒子连接阈值
 const MAX_CONNECTIONS = 4; // 每个粒子最大连接数
 const TRIANGLE_OPACITY = 0.1; // 三角形透明度
 const LINE_OPACITY = 0.2; // 连线透明度
 const MAX_TRIANGLES = 20; // 最多同时渲染的三角形数量
+const PARTICLE_SIZE_MIN = 3; // 粒子最小大小
+const PARTICLE_SIZE_MAX = 5; // 粒子最大大小
+const LINE_WIDTH = 1; // 连线粗细
 
 // 粒子数组
 let particles = [];
@@ -21,11 +24,9 @@ function resizeCanvas() {
     createParticles();
 }
 
-// 创建粒子 - 数量由窗口大小决定
 function createParticles() {
     particles = [];
-    // 每100x100像素区域大约1个粒子
-    const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
+    const particleCount = Math.floor((canvas.width * canvas.height) / 20000);
     
     for (let i = 0; i < particleCount; i++) {
         // 随机方向（角度）
@@ -34,7 +35,8 @@ function createParticles() {
         particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: 2 + Math.random() * 2,
+            // 使用新增的粒子大小常量
+            radius: PARTICLE_SIZE_MIN + Math.random() * (PARTICLE_SIZE_MAX - PARTICLE_SIZE_MIN),
             dx: Math.cos(angle) * PARTICLE_SPEED,
             dy: Math.sin(angle) * PARTICLE_SPEED,
             connections: 0 // 跟踪当前连接数
@@ -121,7 +123,8 @@ function drawConnections() {
                     // 绘制连线
                     ctx.beginPath();
                     ctx.strokeStyle = `rgba(255, 255, 255, ${LINE_OPACITY})`;
-                    ctx.lineWidth = 0.5;
+                    // 使用新增的连线粗细常量
+                    ctx.lineWidth = LINE_WIDTH;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
                     ctx.stroke();
