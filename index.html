@@ -108,37 +108,48 @@
 
 		// 绘制粒子间的连线
 		function drawConnections(ctx) {
+			// 为每个粒子记录当前连线数
+			const connectionCounts = new Array(particles.length).fill(0);
+			const connections = [];
+			
+			// 找出所有符合条件的连线
 			for (let i = 0; i < particles.length; i++) {
-				const p1 = particles[i];
-				let connectionCount = 0;
-				
 				for (let j = i + 1; j < particles.length; j++) {
+					const p1 = particles[i];
 					const p2 = particles[j];
 					
 					// 检查距离是否在连线范围内
 					const distance = getDistance(p1, p2);
-					if (distance <= CONNECTION_MAX_DISTANCE && connectionCount < MAX_CONNECTIONS_PER_PARTICLE) {
-						// 计算两个粒子的透明度
-						const p1Opacity = Math.max(0, 1 - p1.age / p1.lifetime);
-						const p2Opacity = Math.max(0, 1 - p2.age / p2.lifetime);
+					if (distance <= CONNECTION_MAX_DISTANCE && 
+						connectionCounts[i] < MAX_CONNECTIONS_PER_PARTICLE && 
+						connectionCounts[j] < MAX_CONNECTIONS_PER_PARTICLE) {
 						
-						// 创建渐变连线
-						const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-						gradient.addColorStop(0, `rgba(255, 255, 255, ${p1Opacity * 0.5})`);
-						gradient.addColorStop(1, `rgba(255, 255, 255, ${p2Opacity * 0.5})`);
-						
-						// 绘制连线
-						ctx.strokeStyle = gradient;
-						ctx.lineWidth = CONNECTION_LINE_WIDTH;
-						ctx.beginPath();
-						ctx.moveTo(p1.x, p1.y);
-						ctx.lineTo(p2.x, p2.y);
-						ctx.stroke();
-						
-						connectionCount++;
+						connections.push({i, j, p1, p2, distance});
+						connectionCounts[i]++;
+						connectionCounts[j]++;
 					}
 				}
 			}
+			
+			// 绘制所有连线
+			connections.forEach(({p1, p2}) => {
+				// 计算两个粒子的透明度
+				const p1Opacity = Math.max(0, 1 - p1.age / p1.lifetime);
+				const p2Opacity = Math.max(0, 1 - p2.age / p2.lifetime);
+				
+				// 创建渐变连线
+				const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+				gradient.addColorStop(0, `rgba(255, 255, 255, ${p1Opacity * 0.5})`);
+				gradient.addColorStop(1, `rgba(255, 255, 255, ${p2Opacity * 0.5})`);
+				
+				// 绘制连线
+				ctx.strokeStyle = gradient;
+				ctx.lineWidth = CONNECTION_LINE_WIDTH;
+				ctx.beginPath();
+				ctx.moveTo(p1.x, p1.y);
+				ctx.lineTo(p2.x, p2.y);
+				ctx.stroke();
+			});
 		}
 
 		// 生成粒子
