@@ -25,9 +25,17 @@
 		const CONNECTION_LINE_WIDTH = 1; // 连线粗细(像素)
 		const MAX_CONNECTIONS_PER_PARTICLE = 4; // 每个粒子最多连线数
 		const MAX_TOTAL_CONNECTIONS = 800; // 最多连线数
+		
+		// 鼠标引力系统常量
+		const MOUSE_GRAVITY_RADIUS = 50; // 圆范围(像素)
+		const MOUSE_GRAVITY_FORCE = 0.1; // 圆范围引力(g)
 
 		// 粒子数组
 		let particles = [];
+		
+		// 鼠标位置
+		let mouseX = 0;
+		let mouseY = 0;
 
 		// 粒子类
 		class Particle {
@@ -68,6 +76,20 @@
 			}
 
 			update(deltaTime) {
+				// 计算鼠标引力
+				const dx = mouseX - this.x;
+				const dy = mouseY - this.y;
+				const distance = Math.sqrt(dx * dx + dy * dy);
+				
+				// 如果在鼠标引力范围内，应用引力
+				if (distance <= MOUSE_GRAVITY_RADIUS && distance > 0) {
+					const force = MOUSE_GRAVITY_FORCE * (1 - distance / MOUSE_GRAVITY_RADIUS);
+					const ax = (dx / distance) * force;
+					const ay = (dy / distance) * force;
+					this.vx += ax;
+					this.vy += ay;
+				}
+
 				// 更新位置
 				this.x += this.vx;
 				this.y += this.vy;
@@ -175,6 +197,12 @@
 		// 初始化尺寸并监听窗口大小变化
 		resizeCanvas();
 		window.addEventListener('resize', resizeCanvas);
+		
+		// 监听鼠标移动
+		window.addEventListener('mousemove', (e) => {
+			mouseX = e.clientX;
+			mouseY = e.clientY;
+		});
 
 		// 格式化时间为HH:MM格式
 		function formatTime(date) {
