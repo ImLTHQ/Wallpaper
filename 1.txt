@@ -10,7 +10,7 @@
 	PARTICLE_MIN_SPEED = 0.1;
 	PARTICLE_MAX_SPEED = 0.5;
 	PARTICLE_MIN_LIFETIME = 3000; // 毫秒
-	PARTICLE_MAX_LIFETIME = 8000; // 毫秒
+	PARTICLE_MAX_LIFETIME = 10000; // 毫秒
 
 粒子为白色圆形
 粒子有随机生命周期，时间越接近生命周期粒子越大同时越透明
