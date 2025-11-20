@@ -11,6 +11,97 @@
 <body>
 	<canvas></canvas>
 	<script>
+		// 粒子系统常量
+		const PARTICLES_PER_SQUARE_PIXEL = 0.0001; // 每平方像素生成的粒子数
+		const PARTICLE_MIN_SIZE = 1;
+		const PARTICLE_MAX_SIZE = 3;
+		const PARTICLE_MIN_SPEED = 0.5;
+		const PARTICLE_MAX_SPEED = 2;
+		const PARTICLE_MIN_LIFETIME = 3000; // 毫秒
+		const PARTICLE_MAX_LIFETIME = 8000; // 毫秒
+
+		// 粒子数组
+		let particles = [];
+
+		// 粒子类
+		class Particle {
+			constructor() {
+				// 从屏幕外5像素处生成
+				const side = Math.floor(Math.random() * 4);
+				switch(side) {
+					case 0: // 上边
+						this.x = Math.random() * canvas.width;
+						this.y = -5;
+						break;
+					case 1: // 右边
+						this.x = canvas.width + 5;
+						this.y = Math.random() * canvas.height;
+						break;
+					case 2: // 下边
+						this.x = Math.random() * canvas.width;
+						this.y = canvas.height + 5;
+						break;
+					case 3: // 左边
+						this.x = -5;
+						this.y = Math.random() * canvas.height;
+						break;
+				}
+
+				// 随机速度
+				const speed = PARTICLE_MIN_SPEED + Math.random() * (PARTICLE_MAX_SPEED - PARTICLE_MIN_SPEED);
+				const angle = Math.random() * Math.PI * 2;
+				this.vx = Math.cos(angle) * speed;
+				this.vy = Math.sin(angle) * speed;
+
+				// 生命周期
+				this.lifetime = PARTICLE_MIN_LIFETIME + Math.random() * (PARTICLE_MAX_LIFETIME - PARTICLE_MIN_LIFETIME);
+				this.age = 0;
+
+				// 初始大小
+				this.baseSize = PARTICLE_MIN_SIZE + Math.random() * (PARTICLE_MAX_SIZE - PARTICLE_MIN_SIZE);
+			}
+
+			update(deltaTime) {
+				// 更新位置
+				this.x += this.vx;
+				this.y += this.vy;
+
+				// 更新年龄
+				this.age += deltaTime;
+
+				// 检查是否会进入屏幕内
+				const willEnterScreen = 
+					(this.x >= -5 && this.x <= canvas.width + 5) &&
+					(this.y >= -5 && this.y <= canvas.height + 5);
+
+				// 检查是否超出生命周期或不会进入屏幕
+				return this.age < this.lifetime && willEnterScreen;
+			}
+
+			draw(ctx) {
+				// 计算生命周期进度 (0-1)
+				const lifeProgress = this.age / this.lifetime;
+				
+				// 越接近生命周期结束，粒子越大越透明
+				const size = this.baseSize * (1 + lifeProgress * 2);
+				const opacity = Math.max(0, 1 - lifeProgress);
+
+				// 绘制白色圆形粒子
+				ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+				ctx.fill();
+			}
+		}
+
+		// 生成粒子
+		function generateParticles() {
+			const particleCount = Math.floor(canvas.width * canvas.height * PARTICLES_PER_SQUARE_PIXEL);
+			for (let i = 0; i < particleCount; i++) {
+				particles.push(new Particle());
+			}
+		}
+
 		// 获取Canvas元素和上下文
 		const canvas = document.querySelector("canvas");
 		const ctx = canvas.getContext("2d");
@@ -32,8 +123,14 @@
 			return `${hours}:${minutes}`;
 		}
 
+		let lastTime = 0;
+
 		// 动画循环
-		function animate() {
+		function animate(currentTime) {
+			// 计算时间差
+			const deltaTime = currentTime - lastTime;
+			lastTime = currentTime;
+
 			// 绘制渐变背景
 			const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 			gradient.addColorStop(0, "rgb(255, 100, 180)");
@@ -42,8 +139,22 @@
 			ctx.fillStyle = gradient;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+			// 生成新粒子
+			if (Math.random() < 0.1) { // 控制生成频率
+				generateParticles();
+			}
+
+			// 更新和绘制粒子
+			particles = particles.filter(particle => {
+				const alive = particle.update(deltaTime);
+				if (alive) {
+					particle.draw(ctx);
+				}
+				return alive;
+			});
+
 			// 获取当前时间
-			const currentTime = formatTime(new Date());
+			const timeString = formatTime(new Date());
 			
 			// 设置字体样式 - 响应式大小
 			const fontSize = Math.min(canvas.width, canvas.height) * 0.15;
@@ -59,7 +170,7 @@
 
 			// 绘制白色文字
 			ctx.fillStyle = 'white';
-			ctx.fillText(currentTime, canvas.width / 2, canvas.height / 2);
+			ctx.fillText(timeString, canvas.width / 2, canvas.height / 2);
 
 			// 重置阴影设置
 			ctx.shadowBlur = 0;
@@ -68,7 +179,7 @@
 		}
 
 		// 启动动画
-		animate();
+		requestAnimationFrame(animate);
 	</script>
 </body>
 </html>
