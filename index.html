@@ -111,7 +111,8 @@
 				const lifeProgress = this.age / this.lifetime;
 				
 				// 越接近生命周期结束，粒子越大越透明，但不超过最大粒子大小
-				const size = Math.min(this.baseSize * (1 + lifeProgress), PARTICLE_MAX_SIZE);
+				const maxSize = Math.max(this.baseSize, PARTICLE_MAX_SIZE);
+				const size = Math.min(this.baseSize * (1 + lifeProgress), maxSize);
 				const opacity = Math.max(0, 1 - lifeProgress);
 
 				// 绘制白色圆形粒子
